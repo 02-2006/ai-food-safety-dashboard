@@ -6,10 +6,13 @@ import time
 from typing import List, Dict, Any
 from openai import AsyncOpenAI
 
-# Environment variables
-API_BASE_URL = os.environ.get("API_BASE_URL", "http://localhost:7860")
+# --- LLM Proxy (LiteLLM) credentials injected by the OpenEnv validator ---
+LLM_BASE_URL = os.environ.get("API_BASE_URL", "https://api.openai.com/v1")
+LLM_API_KEY = os.environ.get("API_KEY", os.environ.get("OPENAI_API_KEY", ""))
 MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
-OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY", "")
+
+# --- Environment server URL (the HF Space / local server running the sim) ---
+ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
 async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: List[str]) -> str:
     """Uses LLM to decide the next action based on the state."""
@@ -60,7 +63,7 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
     print(f"[START] task={task_id}", flush=True)
     
     # 1. Reset
-    resp = await http_client.post(f"{API_BASE_URL}/reset", json={"task_id": task_id})
+    resp = await http_client.post(f"{ENV_URL}/reset", json={"task_id": task_id})
     resp.raise_for_status()
     state = resp.json()["observation"]
     print(f"Initial State: {state.get('restaurant_id')} | Hygiene: {state.get('hygiene_score')} | Age: {state.get('inspection_age_days')}", flush=True)
@@ -73,7 +76,7 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
         action = await get_ai_action(openai_client, state, history)
         print(f"[{i+1}] Action: {action}", flush=True)
         
-        step_resp = await http_client.post(f"{API_BASE_URL}/step", json={"action": action})
+        step_resp = await http_client.post(f"{ENV_URL}/step", json={"action": action})
         step_resp.raise_for_status()
         data = step_resp.json()
         
@@ -93,7 +96,7 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
         if done: break
         
     # 3. Evaluate
-    eval_resp = await http_client.post(f"{API_BASE_URL}/evaluate")
+    eval_resp = await http_client.post(f"{ENV_URL}/evaluate")
     eval_resp.raise_for_status()
     score = eval_resp.json()["score"]
     
@@ -107,9 +110,18 @@ async def main():
     tasks = ["easy", "medium", "hard"]
     final_scores = {}
     start_time = time.time()
+
+    # Log which LLM endpoint we're using (helps debug proxy issues)
+    print(f"LLM Base URL: {LLM_BASE_URL}", flush=True)
+    print(f"ENV Base URL: {ENV_URL}", flush=True)
+    print(f"Model: {MODEL_NAME}", flush=True)
     
     async with httpx.AsyncClient(timeout=60.0) as http_client:
-        openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
+        # Initialize OpenAI client with the LiteLLM proxy credentials
+        openai_client = AsyncOpenAI(
+            base_url=LLM_BASE_URL,
+            api_key=LLM_API_KEY,
+        )
         # SEQUENTIAL execution for reproducibility
         for t in tasks:
             try:
