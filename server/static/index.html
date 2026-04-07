@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Obsidian Sentinel | AI Food Safety Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar">
+            <div class="logo">Obsidian Sentinel</div>
+            <ul class="nav-links">
+                <li id="tab-intelligence" class="active"><span class="icon">🔍</span> Intelligence</li>
+                <li id="tab-supply-chain"><span class="icon">📦</span> Supply Chain</li>
+                <li id="tab-compliance"><span class="icon">✅</span> Compliance</li>
+            </ul>
+        </nav>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard">
+            <header class="dashboard-header">
+                <div class="header-status">
+                    <span class="pulse-icon"></span> LIVE MONITORING ACTIVE
+                </div>
+                <div class="title-row">
+                    <h1 id="restaurant-name">Loading...</h1>
+                    <div id="status-badge" class="badge">PENDING ANALYSIS</div>
+                </div>
+                <div class="venue-id" id="venue-id">EST ID: ---</div>
+            </header>
+
+            <!-- INTELLIGENCE VIEW -->
+            <div id="intelligence-view">
+                <section class="top-row">
+                    <!-- Core Logistics Card -->
+                    <div class="card logistics-card glass">
+                        <h3>CORE LOGISTICS</h3>
+                        <div class="logistics-grid">
+                            <div class="item">
+                                <label>PHYSICAL ADDRESS</label>
+                                <p id="restaurant-address">402 Artisan Way, Gastronomy District, SF 94103</p>
+                            </div>
+                            <div class="item">
+                                <label>DESCRIPTION</label>
+                                <p id="restaurant-desc" style="font-size: 0.85rem; color: var(--text-secondary);">Loading description...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tactical Insights Gauge -->
+                    <div class="card insights-card glass">
+                        <div class="gauge-container">
+                            <div class="gauge">
+                                <div class="gauge-inner">
+                                    <span id="hygiene-score" class="score-value">--</span>
+                                </div>
+                            </div>
+                            <div class="gauge-labels">
+                                <label>AGGREGATE SAFETY SCORE</label>
+                                <h2 id="risk-level">CALCULATING...</h2>
+                                <p class="accent">Top 0.5% of Regional Venues</p>
+                            </div>
+                        </div>
+                        <hr class="divider">
+                        <div class="mini-metrics">
+                            <div class="metric">
+                                <label>NEURAL CONFIDENCE</label>
+                                <div class="progress-bar"><div id="trust-bar" class="fill" style="width: 0%"></div></div>
+                                <span id="trust-value">0%</span>
+                            </div>
+                            <div class="metric">
+                                <label>LAST PHYSICAL AUDIT</label>
+                                <p id="audit-age">-- Days Ago</p>
+                            </div>
+                            <div class="metric">
+                                <label>PUBLIC SENTIMENT</label>
+                                <p id="sentiment" class="positive">--</p>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Command Center (Action Controls) -->
+                <section class="command-center card glass">
+                    <h3>COMMAND CENTER</h3>
+                    <p class="section-desc">Issue regulatory directives based on neural risk signals.</p>
+                    <div class="action-buttons">
+                        <button id="btn-inspect" class="btn primary">🔍 Request Inspection</button>
+                        <button id="btn-approve" class="btn success">✅ Approve Badge</button>
+                        <button id="btn-hide" class="btn neutral">🚫 Hide Info</button>
+                        <button id="btn-flag" class="btn danger">🚩 Flag Venue</button>
+                    </div>
+                    <div id="action-response" class="response-panel">
+                        <label>LATEST INTEL</label>
+                        <p id="explanation-text">Select an action to begin analysis.</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- SUPPLY CHAIN VIEW -->
+            <div id="supply-chain-view" class="hidden">
+                <section class="top-row">
+                    <div class="card glass">
+                        <h3>SUPPLIER RELIABILITY</h3>
+                        <div class="metric-large">
+                            <h2 id="supplier-status">Optimal</h2>
+                            <p class="text-secondary">Based on hygiene & vendor compliance history</p>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <h3>COLD STORAGE COMPLIANCE</h3>
+                        <div class="metric-large">
+                            <h2 id="storage-status">Compliant</h2>
+                            <p id="storage-detail" class="accent">All nodes within ±0.5°C tolerance</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="card glass" style="margin-top: 2rem;">
+                    <h3>LOGISTICS RISK ANALYSIS</h3>
+                    <div class="metric">
+                        <label>DELIVERY RISK INDEX</label>
+                        <div class="progress-bar"><div id="delivery-risk-bar" class="fill" style="width: 10%; background: var(--success);"></div></div>
+                        <p id="delivery-risk-text">Low Risk (based on complaint history)</p>
+                    </div>
+                </section>
+            </div>
+
+            <!-- COMPLIANCE VIEW -->
+            <div id="compliance-view" class="hidden">
+                <section class="top-row">
+                    <div class="card glass">
+                        <h3>INSPECTION STATUS</h3>
+                        <div class="metric-large">
+                            <h2 id="compliance-status">PASS</h2>
+                            <p id="compliance-reason" class="text-secondary">Standard safety thresholds maintained</p>
+                        </div>
+                    </div>
+                    <div class="card glass">
+                        <h3>LICENSE VALIDITY</h3>
+                        <div class="metric-large">
+                            <h2 id="license-status">VALID</h2>
+                            <p class="accent">FSSAI License #220230500001</p>
+                        </div>
+                    </div>
+                </section>
+                <section class="card glass" style="margin-top: 2rem;">
+                    <h3>REGULATORY SNAPSHOT</h3>
+                    <div class="mini-metrics">
+                        <div class="metric">
+                            <label>VIOLATIONS</label>
+                            <h2 id="violation-count">0</h2>
+                        </div>
+                        <div class="metric">
+                            <label>AUDIT RECENCY</label>
+                            <h2 id="audit-recency">4 Days</h2>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Safety & Inspection History -->
+            <section class="history-section card glass">
+                <div class="section-header">
+                    <h3>Safety & Inspection History</h3>
+                    <div class="task-selector">
+                        <select id="task-select">
+                            <option value="easy">Easy: Verified Safe</option>
+                            <option value="medium">Medium: Stale Audit</option>
+                            <option value="hard">Hard: Trap Hygiene</option>
+                        </select>
+                        <button id="btn-reset" class="btn-sm">Reset Task</button>
+                    </div>
+                </div>
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>STEP</th>
+                            <th>ACTION</th>
+                            <th>RESULT</th>
+                            <th>REWARD</th>
+                            <th>DATE/TIME</th>
+                        </tr>
+                    </thead>
+                    <tbody id="history-body">
+                        <!-- History items added here -->
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <script src="/static/script.js"></script>
+</body>
+</html>

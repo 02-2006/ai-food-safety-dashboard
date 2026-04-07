@@ -1,0 +1,27 @@
+name: AI Food Safety Transparency Environment
+version: 1.0.0
+description: A simulation of restaurant safety transparency decisions.
+action_space:
+  type: discrete
+  actions:
+    - show_safety_badge
+    - hide_info
+    - request_inspection
+    - flag_restaurant
+observation_space:
+  type: dict
+  fields:
+    hygiene_score: {type: float, range: [0, 100]}
+    inspection_age_days: {type: int, range: [0, 1000]}
+    complaints_count: {type: int, range: [0, 100]}
+    order_volume: {type: int, range: [0, 10000]}
+    verification_status: {type: string, options: [verified, pending, suspended]}
+    badge_visible: {type: boolean}
+    flagged: {type: boolean}
+    user_trust: {type: float, range: [0, 100]}
+reward_range: [0.0, 1.0]
+episode_length: 5
+tasks:
+  - easy: Obvious safe restaurant classification.
+  - medium: Stale data requiring inspection request.
+  - hard: Unsafe restaurant requiring flagging.
