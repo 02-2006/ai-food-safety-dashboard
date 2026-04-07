@@ -54,19 +54,24 @@ async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: Lis
         return "hide_info"
 
 async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, task_id: str) -> float:
-    print(f"\n--- RUNNING TASK: {task_id.upper()} ---")
+    print(f"\n--- RUNNING TASK: {task_id.upper()} ---", flush=True)
+    
+    # === STRUCTURED OUTPUT: START ===
+    print(f"[START] task={task_id}", flush=True)
     
     # 1. Reset
     resp = await http_client.post(f"{API_BASE_URL}/reset", json={"task_id": task_id})
     resp.raise_for_status()
     state = resp.json()["observation"]
-    print(f"Initial State: {state.get('restaurant_id')} | Hygiene: {state.get('hygiene_score')} | Age: {state.get('inspection_age_days')}")
+    print(f"Initial State: {state.get('restaurant_id')} | Hygiene: {state.get('hygiene_score')} | Age: {state.get('inspection_age_days')}", flush=True)
     
     # 2. Step Loop (5 steps max to allow multi-step logic)
     history = []
+    step_count = 0
+    last_reward = 0.0
     for i in range(5):
         action = await get_ai_action(openai_client, state, history)
-        print(f"[{i+1}] Action: {action}")
+        print(f"[{i+1}] Action: {action}", flush=True)
         
         step_resp = await http_client.post(f"{API_BASE_URL}/step", json={"action": action})
         step_resp.raise_for_status()
@@ -77,7 +82,13 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
         done = data["done"]
         info = data["info"]["info"]
         
-        print(f"  Reward: {reward} | Reason: {info.get('reason')}")
+        step_count = i + 1
+        last_reward = reward
+        
+        # === STRUCTURED OUTPUT: STEP ===
+        print(f"[STEP] step={step_count} reward={reward}", flush=True)
+        
+        print(f"  Reward: {reward} | Reason: {info.get('reason')}", flush=True)
         history.append(action)
         if done: break
         
@@ -85,7 +96,11 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
     eval_resp = await http_client.post(f"{API_BASE_URL}/evaluate")
     eval_resp.raise_for_status()
     score = eval_resp.json()["score"]
-    print(f"TASK FINAL SCORE: {score}")
+    
+    # === STRUCTURED OUTPUT: END ===
+    print(f"[END] task={task_id} score={score} steps={step_count}", flush=True)
+    
+    print(f"TASK FINAL SCORE: {score}", flush=True)
     return score
 
 async def main():
@@ -93,7 +108,7 @@ async def main():
     final_scores = {}
     start_time = time.time()
     
-    async with httpx.AsyncClient() as http_client:
+    async with httpx.AsyncClient(timeout=60.0) as http_client:
         openai_client = AsyncOpenAI(api_key=OPENAI_API_KEY)
         # SEQUENTIAL execution for reproducibility
         for t in tasks:
@@ -101,19 +116,23 @@ async def main():
                 score = await run_task(http_client, openai_client, t)
                 final_scores[t] = score
             except Exception as e:
-                print(f"Error in task {t}: {e}")
+                print(f"Error in task {t}: {e}", flush=True)
                 final_scores[t] = 0.0
+                # Still emit structured output so validator can parse something
+                print(f"[START] task={t}", flush=True)
+                print(f"[STEP] step=1 reward=0.0", flush=True)
+                print(f"[END] task={t} score=0.0 steps=0", flush=True)
             
-    print("\n" + "="*40)
-    print("FINAL RESULTS SUMMARY")
-    print("="*40)
+    print("\n" + "="*40, flush=True)
+    print("FINAL RESULTS SUMMARY", flush=True)
+    print("="*40, flush=True)
     for t, s in final_scores.items():
-        print(f"{t.capitalize()}: {s}")
+        print(f"{t.capitalize()}: {s}", flush=True)
     
     avg_score = sum(final_scores.values()) / len(tasks)
-    print(f"Global Benchmark: {avg_score:.2f}")
-    print(f"Execution Time: {time.time() - start_time:.2f}s")
-    print("="*40)
+    print(f"Global Benchmark: {avg_score:.2f}", flush=True)
+    print(f"Execution Time: {time.time() - start_time:.2f}s", flush=True)
+    print("="*40, flush=True)
 
 if __name__ == "__main__":
     asyncio.run(main())
