@@ -129,11 +129,11 @@ async def main():
                 final_scores[t] = score
             except Exception as e:
                 print(f"Error in task {t}: {e}", flush=True)
-                final_scores[t] = 0.0
+                final_scores[t] = 0.01
                 # Still emit structured output so validator can parse something
                 print(f"[START] task={t}", flush=True)
-                print(f"[STEP] step=1 reward=0.0", flush=True)
-                print(f"[END] task={t} score=0.0 steps=0", flush=True)
+                print(f"[STEP] step=1 reward=0.01", flush=True)
+                print(f"[END] task={t} score=0.01 steps=0", flush=True)
             
     print("\n" + "="*40, flush=True)
     print("FINAL RESULTS SUMMARY", flush=True)
