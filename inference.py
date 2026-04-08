@@ -14,6 +14,11 @@ MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
 # --- Environment server URL (the HF Space / local server running the sim) ---
 ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
+def clamp_score(score: float) -> float:
+    """Clamp score to be strictly between 0 and 1 (exclusive)."""
+    epsilon = 1e-6
+    return max(epsilon, min(1.0 - epsilon, float(score)))
+
 async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: List[str]) -> str:
     """Uses LLM to decide the next action based on the state."""
     prompt = f"""
@@ -98,7 +103,7 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
     # 3. Evaluate
     eval_resp = await http_client.post(f"{ENV_URL}/evaluate")
     eval_resp.raise_for_status()
-    score = eval_resp.json()["score"]
+    score = clamp_score(eval_resp.json()["score"])
     
     # === STRUCTURED OUTPUT: END ===
     print(f"[END] task={task_id} score={score} steps={step_count}", flush=True)

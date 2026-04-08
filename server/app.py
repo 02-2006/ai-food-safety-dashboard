@@ -101,6 +101,11 @@ async def get_state():
     print(f"STATE DEBUG [ENV {id(env)}]:", curr_state)
     return {"observation": curr_state}
 
+def clamp_score(score: float) -> float:
+    """Clamp score to be strictly between 0 and 1 (exclusive)."""
+    epsilon = 1e-6
+    return max(epsilon, min(1.0 - epsilon, float(score)))
+
 @app.post("/evaluate")
 async def evaluate():
     """Evaluate the current trajectory based on the task grader."""
@@ -115,7 +120,7 @@ async def evaluate():
     score = grader(trajectory)
     return {
         "task": current_task_id,
-        "score": score,
+        "score": clamp_score(score),
         "steps": len(trajectory)
     }
 
