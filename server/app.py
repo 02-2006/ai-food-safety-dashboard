@@ -90,7 +90,7 @@ async def step(req: StepRequest):
     
     return {
         "observation": obs,
-        "reward": reward,
+        "reward": clamp_score(reward),
         "done": done,
         "info": info
     }

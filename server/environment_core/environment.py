@@ -178,5 +178,7 @@ class FoodSafetyEnv:
                 expected = "show_safety_badge"
                 self._update_trust(-10.0)
 
-        final_reward = max(0.0, min(1.0, tier))
+        # Clamp reward to be strictly between 0 and 1 (exclusive) for validator compliance
+        epsilon = 1e-6
+        final_reward = max(epsilon, min(1.0 - epsilon, float(tier)))
         return final_reward, {"reason": reason, "expected_action": expected}
