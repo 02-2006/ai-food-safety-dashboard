@@ -16,7 +16,7 @@ ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
 def clamp_score(score: float) -> float:
     """Clamp score to be strictly between 0 and 1 (exclusive)."""
-    epsilon = 1e-6
+    epsilon = 0.01
     return max(epsilon, min(1.0 - epsilon, float(score)))
 
 async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: List[str]) -> str:
@@ -147,7 +147,7 @@ async def main():
         print(f"{t.capitalize()}: {s}", flush=True)
     
     avg_score = clamp_score(sum(final_scores.values()) / len(tasks))
-    print(f"Global Benchmark: {avg_score:.2f}", flush=True)
+    print(f"Global Benchmark: {avg_score:.4f}", flush=True)
     print(f"Execution Time: {time.time() - start_time:.2f}s", flush=True)
     print("="*40, flush=True)
 

@@ -55,7 +55,7 @@ class FoodSafetyEnv:
             self._state = self._initial_default_state()
             
         self.step_count = 0
-        self.total_reward = 0.0
+        self.total_reward = 0.000001
         self.is_done = False
         self.history = []
         
@@ -124,24 +124,24 @@ class FoodSafetyEnv:
 
         if action == Action.FLAG_RESTAURANT:
             if is_risky:
-                tier = 1.0
+                tier = 0.99
                 reason = "Correctly flagged a high-risk restaurant, protecting public health."
                 expected = "flag_restaurant"
                 self._update_trust(5.0)
             else:
-                tier = 0.0
+                tier = 0.01
                 reason = "Falsely flagged a safe restaurant, causing unfair economic harm."
                 expected = "show_safety_badge"
                 self._update_trust(-15.0)
         
         elif action == Action.SHOW_BADGE:
             if is_very_safe:
-                tier = 1.0
+                tier = 0.99
                 reason = "Promoted a high-standard, verified restaurant. Boosts user trust."
                 expected = "show_safety_badge"
                 self._update_trust(10.0)
             elif is_risky:
-                tier = 0.0
+                tier = 0.01
                 reason = "DANGEROUS: Displayed safety badge for a restaurant with safety hazards."
                 expected = "flag_restaurant" if not res.is_hidden_risk else "request_inspection"
                 self._update_trust(-25.0)
@@ -153,12 +153,12 @@ class FoodSafetyEnv:
 
         elif action == Action.REQUEST_INSPECTION:
             if res.is_hidden_risk or res.inspection_age_days > 180:
-                tier = 1.0
+                tier = 0.99
                 reason = "Pre-emptive investigation of stale or suspicious data is optimal."
                 expected = "request_inspection"
                 self._update_trust(5.0)
             elif res.inspection_age_days < 30:
-                tier = 0.0
+                tier = 0.01
                 reason = "Wasteful: Requested inspection for very recent, high-quality data."
                 expected = "show_safety_badge"
                 self._update_trust(-2.0)
@@ -174,12 +174,12 @@ class FoodSafetyEnv:
                 expected = "flag_restaurant"
                 self._update_trust(-2.0)
             elif is_very_safe:
-                tier = 0.0
+                tier = 0.01
                 reason = "Failure of transparency: Hiding information for a very safe restaurant."
                 expected = "show_safety_badge"
                 self._update_trust(-10.0)
 
         # Clamp reward to be strictly between 0 and 1 (exclusive) for validator compliance
-        epsilon = 1e-6
+        epsilon = 0.01
         final_reward = max(epsilon, min(1.0 - epsilon, float(tier)))
         return final_reward, {"reason": reason, "expected_action": expected}
