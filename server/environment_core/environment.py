@@ -25,7 +25,7 @@ class FoodSafetyEnv:
         self._state: RestaurantState = self._initial_default_state()
         self.step_count = 0
         self.max_steps = 10
-        self.total_reward = 0.0
+        self.total_reward = 0.000001
         self.is_done = False
         self.history = []
         self.seed = seed
@@ -72,7 +72,8 @@ class FoodSafetyEnv:
 
     def step(self, action: Action) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
         if self.is_done:
-            return self._get_obs(), 0.0, True, {"info": {"reason": "Episode already finished.", "expected_action": "N/A"}}
+            # Clamp even the early finish reward
+            return self._get_obs(), 0.000001, True, {"info": {"reason": "Episode already finished.", "expected_action": "N/A"}}
 
         self.step_count += 1
         self.history.append(action.value)

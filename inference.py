@@ -146,7 +146,7 @@ async def main():
     for t, s in final_scores.items():
         print(f"{t.capitalize()}: {s}", flush=True)
     
-    avg_score = sum(final_scores.values()) / len(tasks)
+    avg_score = clamp_score(sum(final_scores.values()) / len(tasks))
     print(f"Global Benchmark: {avg_score:.2f}", flush=True)
     print(f"Execution Time: {time.time() - start_time:.2f}s", flush=True)
     print("="*40, flush=True)
