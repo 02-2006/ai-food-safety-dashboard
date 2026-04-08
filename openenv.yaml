@@ -19,7 +19,7 @@ observation_space:
     badge_visible: {type: boolean}
     flagged: {type: boolean}
     user_trust: {type: float, range: [0, 100]}
-reward_range: [0.000001, 0.999999]
+reward_range: [0.01, 0.99]
 episode_length: 5
 tasks:
   - easy: Obvious safe restaurant classification.
