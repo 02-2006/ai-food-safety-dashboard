@@ -25,7 +25,7 @@ class FoodSafetyEnv:
         self._state: RestaurantState = self._initial_default_state()
         self.step_count = 0
         self.max_steps = 10
-        self.total_reward = 0.05
+        self.total_reward = 0.000001
         self.is_done = False
         self.history = []
         self.seed = seed
@@ -55,7 +55,7 @@ class FoodSafetyEnv:
             self._state = self._initial_default_state()
             
         self.step_count = 0
-        self.total_reward = 0.05
+        self.total_reward = 0.000001
         self.is_done = False
         self.history = []
         
@@ -179,7 +179,6 @@ class FoodSafetyEnv:
                 expected = "show_safety_badge"
                 self._update_trust(-10.0)
 
-        # Clamp reward to be strictly between 0 and 1 (exclusive) for validator compliance
-        epsilon = 0.05
-        final_reward = max(epsilon, min(1.0 - epsilon, float(tier)))
+        # Binary rewards as requested by the user
+        final_reward = float(tier > 0.5)
         return final_reward, {"reason": reason, "expected_action": expected}

@@ -102,9 +102,8 @@ async def get_state():
     return {"observation": curr_state}
 
 def clamp_score(score: float) -> float:
-    """Clamp score to be strictly between 0 and 1 (exclusive)."""
-    epsilon = 0.05
-    return max(epsilon, min(1.0 - epsilon, float(score)))
+    """Pass-through for binary scores (0 or 1)."""
+    return round(float(score))
 
 @app.post("/evaluate")
 async def evaluate():

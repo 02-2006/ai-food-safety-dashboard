@@ -15,9 +15,8 @@ MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
 ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
 def clamp_score(score: float) -> float:
-    """Clamp score to be strictly between 0 and 1 (exclusive)."""
-    epsilon = 0.05
-    return max(epsilon, min(1.0 - epsilon, float(score)))
+    """Clamp score to be strictly 0 or 1."""
+    return round(float(score))
 
 async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: List[str]) -> str:
     """Uses LLM to decide the next action based on the state."""
@@ -76,7 +75,7 @@ async def run_task(http_client: httpx.AsyncClient, openai_client: AsyncOpenAI, t
     # 2. Step Loop (5 steps max to allow multi-step logic)
     history = []
     step_count = 0
-    last_reward = 0.05
+    last_reward = 0.0
     for i in range(5):
         action = await get_ai_action(openai_client, state, history)
         print(f"[{i+1}] Action: {action}", flush=True)
@@ -134,11 +133,11 @@ async def main():
                 final_scores[t] = score
             except Exception as e:
                 print(f"Error in task {t}: {e}", flush=True)
-                final_scores[t] = 0.05
+                final_scores[t] = 0.0
                 # Still emit structured output so validator can parse something
                 print(f"[START] task={t}", flush=True)
-                print(f"[STEP] step=1 reward=0.01", flush=True)
-                print(f"[END] task={t} score=0.05 steps=0", flush=True)
+                print(f"[STEP] step=1 reward=0.0", flush=True)
+                print(f"[END] task={t} score=0.0 steps=0", flush=True)
             
     print("\n" + "="*40, flush=True)
     print("FINAL RESULTS SUMMARY", flush=True)
