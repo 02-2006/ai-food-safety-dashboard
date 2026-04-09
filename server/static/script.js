@@ -1,4 +1,4 @@
-const API_BASE = ""; // Relative paths since we serve from the same origin
+const API_BASE = ""; // v2.1 cache buster
 
 const UI = {
     // Basic Info
