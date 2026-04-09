@@ -203,7 +203,7 @@ function addHistoryRow(step, action, reward, reason) {
         <td>#${step}</td>
         <td style="color: var(--accent)">${action.toUpperCase()}</td>
         <td style="font-size: 0.75rem">${reason}</td>
-        <td style="color: ${reward > 0.6 ? 'var(--success)' : 'var(--danger)'}">${reward.toFixed(4)}</td>
+        <td style="color: ${reward > 0.6 ? 'var(--success)' : 'var(--danger)'}">${reward.toFixed(6)}</td>
         <td style="color: var(--text-secondary); font-size: 0.7rem">${now}</td>
     `;
     UI.historyBody.prepend(row);
