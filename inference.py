@@ -15,8 +15,8 @@ MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-4o")
 ENV_URL = os.environ.get("ENV_URL", "http://localhost:7860")
 
 def clamp_score(score: float) -> float:
-    """Clamp score to be strictly 0 or 1."""
-    return round(float(score))
+    epsilon = 1e-6
+    return max(epsilon, min(1 - epsilon, float(score)))
 
 async def get_ai_action(client: AsyncOpenAI, state: Dict[str, Any], history: List[str]) -> str:
     """Uses LLM to decide the next action based on the state."""

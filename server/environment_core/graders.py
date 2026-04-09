@@ -1,5 +1,10 @@
 from typing import List, Dict, Any
 
+def clamp_score(score: float) -> float:
+    epsilon = 1e-6
+    return max(epsilon, min(1 - epsilon, float(score)))
+
+
 def grade_easy(trajectory: List[Dict[str, Any]]) -> float:
     """Easy task: Obvious safe restaurant. Reward based on whether they showed the badge."""
     score = 0
@@ -11,12 +16,12 @@ def grade_easy(trajectory: List[Dict[str, Any]]) -> float:
     for step in trajectory:
         if step["action"] == "flag_restaurant":
             score = 0
-    return score
+    return clamp_score(score)
 
 def grade_medium(trajectory: List[Dict[str, Any]]) -> float:
     """Medium task: Borderline/Stale. Reward based on requesting inspection BEFORE showing badge."""
     requested = False
-    return 1 if requested else 0
+    return clamp_score(1 if requested else 0)
 
 def grade_hard(trajectory: List[Dict[str, Any]]) -> float:
     """Hard task: Trap Hygiene. 
@@ -36,17 +41,16 @@ def grade_hard(trajectory: List[Dict[str, Any]]) -> float:
             if revealed:
                 flagged = True
             else:
-                return 0 
-        
+                return clamp_score(0) 
         if action == "show_safety_badge":
-            return 0
+            return clamp_score(0)
 
     if revealed and flagged:
-        return 1
+        return clamp_score(1)
     if revealed and not flagged:
-        return 0 
+        return clamp_score(0) 
         
-    return 0
+    return clamp_score(0)
 
 GRADERS = {
     "easy": grade_easy,

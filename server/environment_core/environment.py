@@ -4,6 +4,11 @@ from typing import Dict, Tuple, Any
 from .state import EnvironmentState, RestaurantState, VerificationStatus
 from .actions import Action
 
+def clamp_score(score: float) -> float:
+    epsilon = 1e-6
+    return max(epsilon, min(1 - epsilon, float(score)))
+
+
 _singleton_instance = None
 
 def get_env(seed: int = 42) -> 'FoodSafetyEnv':
@@ -73,12 +78,13 @@ class FoodSafetyEnv:
     def step(self, action: Action) -> Tuple[Dict[str, Any], float, bool, Dict[str, Any]]:
         if self.is_done:
             # Clamp even the early finish reward
-            return self._get_obs(), 0.000001, True, {"info": {"reason": "Episode already finished.", "expected_action": "N/A"}}
+            return self._get_obs(), clamp_score(0.0), True, {"info": {"reason": "Episode already finished.", "expected_action": "N/A"}}
 
         self.step_count += 1
         self.history.append(action.value)
 
-        reward, info_dict = self._calculate_reward(action)
+        reward_raw, info_dict = self._calculate_reward(action)
+        reward = clamp_score(reward_raw)
         self.total_reward += reward
         
         # Apply the action effects directly to self.state
